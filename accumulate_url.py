@@ -25,14 +25,14 @@ def accumulate(x,y):
 			link = href_head + href_tail.get("href")
 			new_row = pd.Series([0,0,0,None,0,0,0,0,0,link,0,0,0],  index = df.columns)
 			df = df.append(new_row, ignore_index = True)
-			print(link)
+#			print(link)
 			count += 1
 		else:
 			count += 1
             
-#    df[df==0]=""
+
 	#mac
-	df.to_csv("./db/process/release_db_accumulate_url.csv")
+	return df
 	#windows
 	#df.to_csv("¥db¥process¥release_db_accumulate_url.csv")
 

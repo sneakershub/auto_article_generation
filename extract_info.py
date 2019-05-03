@@ -5,11 +5,11 @@ from bs4 import BeautifulSoup
 import pandas as pd
 
 #mac
-df = pd.read_csv("./db/process/release_db_accumulate_url.csv", index_col = 0, encoding = "utf_8_sig")
+#df = pd.read_csv("./db/process/release_db_accumulate_url.csv", index_col = 0, encoding = "utf_8_sig")
 #windows
 #df = pd.read_csv("¥db¥process¥release_db_accumulate_url.csv", index_col = 0, encoding = "utf_8_sig")
 
-def store_title(x,y):
+def store_title(df,x,y):
 	title_parts = y.split(" ")
 	#brand = (title_parts[0])
 	#df.iloc[x,0] = brand
@@ -19,7 +19,7 @@ def store_title(x,y):
 	colorway = (title_parts[-1])
 	df.iloc[x,2] = colorway
 
-def store_details(x,y):
+def store_details(df,x,y):
 	d_count = 0
 	for i in y:
 		details_parts= i.text
@@ -27,7 +27,7 @@ def store_details(x,y):
 			brand_split = details_parts.split("(")[1]
 			brand = brand_split.split(")")[0]
 			df.iloc[x,0] = brand
-			print(brand)
+#			print(brand)
 			d_count += 1
 		elif(d_count == 1):
 			d_count += 1
@@ -42,46 +42,48 @@ def store_details(x,y):
 		elif(d_count == 3):
 			price = details_parts
 			df.iloc[x,4] = price
-			print(price)
+#			print(price)
 			d_count += 1
 		elif(d_count == 4):
 			item_code = details_parts
 			df.iloc[x,5] = item_code
-			print(item_code)
+#			print(item_code)
 			d_count += 1
 		else:
 			print("More than 5 elements in Sneaker Details")
 			d_count += 1
 
-def store_contents(x,y):
+def store_contents(df,x,y):
 	df.iloc[x,6] = str(y.text)
 
 #Access individual article page and extract html
-def extract_html(x):
+def extract_html(df,x):
 	url = str(df.loc[:,"datasource_url"][x])
 	html = urllib.request.urlopen(url=url)
 	#Parse html using BeautifulSoup
 	soup = BeautifulSoup(html,"html.parser")
 	#Extract "brand" "model_name" "colorway" from html
 	title = soup.find("p", attrs={"class": "page-title-en"}).text
-	store_title(x,title)
+	store_title(df,x,title)
 	print(title)
 	#Extract "price" "release_date" "item_code" from html
 	details = soup.find_all("p", attrs={"class": "li-text"})
-	store_details(x,details)
+	store_details(df,x,details)
 	#store_details(x,details)
 	#Extract "content" from html
 	contents = soup.find("div", attrs={"class": "article-content"})
-	store_contents(x,contents)
+	store_contents(df,x,contents)
 	#store_contents(x,contents)
 
-def extract():
-	count = 0
-	for i in df.loc[:,"datasource_url"]:
-		extract_html(count)
-		count += 1
+def extract(df):
+    count = 0
+    for i in df.loc[:,"datasource_url"]:
+        extract_html(df,count)
+        count += 1
 	#mac
-	df.to_csv("./db/process/release_db_extract_info.csv", encoding= "utf_8_sig")
+    df.to_csv("./db/process/release_db_extract_info.csv", encoding= "utf_8_sig")
+
+    return df
 	#windows
 	#df.to_csv("¥db¥process¥release_db_extract_info.csv", encoding= "utf_8_sig")
 
