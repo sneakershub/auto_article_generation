@@ -18,7 +18,7 @@ df_temp = pd.read_csv("¥db¥input¥Post_template.csv", index_col = 0, encoding 
 """
 
 def create_single_content(df_db,df_temp,ind):
-    Name = df_db.loc[ind,'model_name']
+    Name = df_db.loc[ind,'brand'] + ' ' + df_db.loc[ind,'model_name']
     Price = df_db.loc[ind,'price']
     Article = df_temp.loc['NAME','Content'].format('{"level":3}',Name) + '\n'\
     + df_temp.loc['IMG','Content'] + '\n'\
@@ -46,6 +46,7 @@ if __name__ == "__main__":
 #df2 = pd.read_csv("./db/output/release_db_create_post.csv", index_col = 0, encoding = "utf_8_sig")
 
 def create_weekly_content(df2,df_temp, start, end):
+    from pyfiles import get_imgs
     df2['release_date'] = pd.to_datetime(df2['release_date'])
     df2.sort_values(by=['release_date'], ascending = True, inplace = True)
     filt1 = (df2['release_date'] >= start)
@@ -55,9 +56,14 @@ def create_weekly_content(df2,df_temp, start, end):
     row = 0
     Article = df_temp.loc['HEADER','Content'] + '\n'
     c_date = pd.to_datetime(start) - pd.offsets.Day()
-    for i in df_filtered['Post_Content']:
+    while row < len(df_filtered['Post_Content']):
+#    for i in df_filtered['Post_Content']:
         if c_date == df_filtered.loc[row,'release_date']:
             Article = Article + df_filtered.loc[row,'Post_Content'] + '\n'
+            name = df_filtered.loc[row,'brand'] + ' ' + \
+            df_filtered.loc[row,'model_name'] + ' ' + df_filtered.loc[row,'colorway']
+            print(name)
+            get_imgs.search_img(name, 3)
             row += 1
         elif  c_date < df_filtered.loc[row,'release_date']:
             c_date += pd.offsets.Day() 
